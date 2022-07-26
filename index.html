@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Clippify</title>
+     <style>
+      h1,p{
+      text-align: center;
+      }
+      button{
+        display: block;
+        margin: auto;
+      }
+      #square{
+          margin: 2rem auto;
+          width: 200px;
+          height: 200px;
+          box-shadow: 0px 0px 0px 2px black;
+          position: relative;
+      }
+      #square:hover .dot{
+        opacity: 0.5;
+      }
+      .dot{
+        z-index: 2;
+        opacity: 0.1;
+      }
+      .dot:hover{
+        box-sizing: content-box;
+        box-shadow: 0px 0px 0px 3px red;
+      }
+      .css-container{
+        width: 300px;
+        height: auto;
+        background: silver;
+        font-family: monospace;
+        border-radius: 5px;
+        margin: auto;
+        padding: 0.75rem;
+        white-space:pre-line;
+        
+      }
+      #clip-path-demo{
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        background: pink;
+        opacity: 0.75;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Clippify</h1>
+    <p>A simple tool to generate a CSS clip-path from drawing.</p>
+    <button>Reset</button>
+    <div>
+      <span id="clip-path-demo"></span>
+    </div>
+    <pre class="css-container">clip-path: <span id="clip-path-literal">polygon(<span id="clip-path"></span>);</span></pre>
+  <script>
+  
+  
+  function main(){
+      
+    const state = {
+      mouseDown: false,
+      clipPath: ""
+    }
+    
+    const appendPath = e => {
+        const rect = div.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y= e.clientY - rect.top;
+        const percentX = Math.floor(10000 * x / (rect.right - rect.left)) / 100;
+        const percentY = Math.floor(10000 * y / (rect.bottom - rect.top)) / 100;
+        const newStr = ` ${percentX}% ${percentY}%,`;
+        state.clipPath += newStr
+        createDot(percentX,percentY,newStr)
+    }
+    
+    document.onmousedown = (e)=>{
+      state.mouseDown = true;
+    }
+    document.onmouseup = ()=>{
+      state.mouseDown = false;
+    }
+  
+    const div = document.querySelector("div");
+    div.id = "square"
+    div.onmousemove = (e)=>{
+      if(state.mouseDown){
+        appendPath(e);
+      }
+    }
+    
+    document.querySelector("button").onclick = ()=>{
+      state.clipPath = "";
+      setCSSPreUI();
+      document.querySelectorAll(".dot").forEach(dot=>{
+        dot.remove();
+      })
+    }
+  
+    const setCSSPreUI = ()=>{
+      document.getElementById("clip-path").textContent = state.clipPath.slice(0,state.clipPath.length - 1);
+      document.getElementById("clip-path-demo").style = `clip-path: ${document.getElementById("clip-path-literal").textContent};`;
+    }
+  
+     const createDot = (x=0,y=0,newText)=>{
+      setCSSPreUI();
+      const dot = document.createElement("div");
+      dot.classList.add("dot")
+      dot.setAttribute("new-text",newText);
+      dot.style = `
+        width: 8px;
+        height: 8px;
+        background: grey;
+        border-radius: 50%;
+        left: ${x}%;
+        top: ${y}%;
+        position: absolute;
+        transform: translate(-50%, -50%);
+      `
+      div.appendChild(dot);
+    }
+    
+    const removeDot = (dot)=>{
+      const textToRemove = dot.getAttribute("new-text");
+      state.clipPath = state.clipPath.replace(textToRemove,"");
+      dot.remove();
+      setCSSPreUI();
+    }  
+      div.onclick = e =>{
+       if(e.target.classList.contains("dot")){
+         removeDot(e.target);
+       }else{
+          appendPath(e);
+       }
+    }
+    
+  }
+  
+  main();
+  </script>
+  </body>
+</html>
+
+
