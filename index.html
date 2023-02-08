@@ -6,19 +6,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
      <title>Clippify</title>
      <style>
+      body {
+        font-family: monospace;
+      }
       h1,p{
       text-align: center;
       }
       button{
         display: block;
         margin: auto;
+        border: none;
+        border-radius: 10px;
+        padding: 1rem 2rem;
+        font-family: inherit;
+        background: rgb(220,220,220);
+        cursor: pointer;
+      }
+      .text-copied-msg {
+        margin: 1rem auto;
+        display: block;
+        background: rgb(126, 232, 126);
+        color: rgb(7, 96, 7);
+        border-radius: 5px;
+        padding: 1rem;
+        width: max-content;
+        transition: 0.2s;
+        opacity: 0;
+      }
+      button:hover, .css-container:hover {
+        background: rgb(200,200,200);
+        cursor: pointer;
       }
       #square{
           margin: 2rem auto;
           width: 200px;
           height: 200px;
-          box-shadow: 0px 0px 0px 2px black;
+          box-shadow: 0px 0px 0px 4px rgb(42, 41, 41);
           position: relative;
+          border-radius: 4px;
       }
       #square:hover .dot{
         opacity: 0.5;
@@ -34,7 +59,7 @@
       .css-container{
         width: 300px;
         height: auto;
-        background: silver;
+        background: rgb(220, 220, 220);
         font-family: monospace;
         border-radius: 5px;
         margin: auto;
@@ -62,6 +87,7 @@
       <span id="clip-path-demo"></span>
     </div>
     <pre class="css-container">clip-path: <span id="clip-path-literal">polygon(<span id="clip-path"></span>);</span></pre>
+    <div class="text-copied-msg">Code Copied to Clipboard</div>
   <script>
   
   
@@ -82,6 +108,12 @@
         state.clipPath += newStr
         createDot(percentX,percentY,newStr)
     }
+
+    const copyText = () => {
+        const copyText = document.querySelector('.css-container');
+        navigator.clipboard.writeText(copyText.innerText);
+        flashCopied();
+    } 
     
     document.onmousedown = (e)=>{
       state.mouseDown = true;
@@ -105,6 +137,8 @@
         dot.remove();
       })
     }
+
+    document.querySelector('.css-container').onclick = ()=> copyText();
   
     const setCSSPreUI = ()=>{
       document.getElementById("clip-path").textContent = state.clipPath.slice(0,state.clipPath.length - 1);
@@ -142,6 +176,16 @@
           appendPath(e);
        }
     }
+
+    let showingTextCopied = false;
+
+    const flashCopied = () => {
+        const textCopied =  document.querySelector('.text-copied-msg')
+        textCopied.style.opacity = "1";
+        setTimeout(()=> {
+            textCopied.style.opacity = "0";
+        }, 1000)
+    }
     
   }
   
@@ -149,5 +193,3 @@
   </script>
   </body>
 </html>
-
-
